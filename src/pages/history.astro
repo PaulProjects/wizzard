@@ -45,14 +45,14 @@ import Score from "../components/Score.astro";
             id="import_data"
             class="btn btn-info btn-block mt-2"
             onclick="mo
-              odal()"
+                "
                       >
             Import Data</button
           >
-          <button
-            class="btn btn-primary btn-block mt-5"
-            onclick="modal_confirmend.showModal()"
-                      >
+          <button id="del_game" class="hidden btn btn-primary btn-block mt-5">
+            Delete this game
+          </button>
+          <button id="del_all" class="btn btn-primary btn-block mt-2">
             Delete all local data
           </button>
         </div>
@@ -64,16 +64,16 @@ import Score from "../components/Score.astro";
   </dialog>
   <!-- End of Settings modal -->
   <!-- Really End game? modal -->
-  <dialog id="modal_confirmend" class="modal modal-top sm:modal-middle">
+  <dialog id="modal_delete" class="modal modal-top sm:modal-middle">
     <form method="dialog" class="modal-box">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
         >✕</button
       >
       <div class="flex flex-col justify-center items-center">
-        <h2 class="font-bold text-3xl mt-5">
+        <h2 class="font-bold text-3xl mt-5" id="modal_del_text">
           Do you really want to delete all data?
         </h2>
-        <p class="pl-10 pr-10">
+        <p class="pl-10 pr-10" id="modal_del_infotext">
           This will remove all stored data about current and past games
           permanently!
         </p>
@@ -124,15 +124,15 @@ import Score from "../components/Score.astro";
     src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"
   ></script>
   <script
-  is:inline
-  src="https://code.jquery.com/jquery-3.7.0.min.js"
-  integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
-  crossorigin="anonymous"></script>
+    is:inline
+    src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+    crossorigin="anonymous"></script>
   <script>
     let view = 0; //0 = overview ; 1 = details
     // check if past_games exists in local storage if not return
     let past_games = JSON.parse(localStorage.getItem("recent_games"));
-    if (past_games === null) {
+    if (past_games === null || past_games.length === 0) {
       location.href = "/";
     }
 
@@ -141,9 +141,44 @@ import Score from "../components/Score.astro";
       document.getElementById("modal_settings").open = true;
     });
 
-    $("#rremovedata").on("click", () => {
-      localStorage.clear();
-      location.href = "/";
+    $("#del_game").on("click", () => {
+      //remove all onclick attributes
+      $("#rremovedata").removeAttr("onclick");
+      //show modal_delete
+      document.getElementById("modal_delete").open = true;
+      //change text
+      document.getElementById("modal_del_text").innerHTML =
+        "Do you really want to delete this game?";
+      document.getElementById("modal_del_infotext").innerHTML =
+        "This will remove all stored data about this game permanently!";
+      //add onclick to the button
+      $("#rremovedata").on("click", () => {
+        //get the index of the game
+        let index = past_games.indexOf(Lgame);
+        //remove the game from the array
+        past_games.splice(index, 1);
+        //save the array in localstorage
+        localStorage.setItem("recent_games", JSON.stringify(past_games));
+        //reload the page
+        location.reload();
+      });
+    });
+    
+    $("#del_all").on("click", () => {
+      //remove all onclick attributes
+      $("#rremovedata").removeAttr("onclick");
+      //show modal_delete
+      document.getElementById("modal_delete").open = true;
+      //change text
+      document.getElementById("modal_del_text").innerHTML =
+        "Do you really want to delete all data?";
+      document.getElementById("modal_del_infotext").innerHTML =
+        "This will remove all stored data about current and past games permanently!";
+      //add onclick to the button
+      $("#rremovedata").on("click", () => {
+        localStorage.clear();
+        location.reload();
+      });
     });
 
     $("#export_data").on("click", () => {
@@ -277,14 +312,16 @@ import Score from "../components/Score.astro";
       //hide past_games and remove hidden from score
       $("#past_games").addClass("hidden");
       $("#score").removeClass("hidden");
+      //remove hidden from del_game
+      $("#del_game").removeClass("hidden");
       //get the game and store it in Lgame
       Lgame = past_games[i];
       let players = JSON.parse(Lgame.players);
 
       celebration();
-      
+
       $("#downloadbutton").removeClass("hidden");
-      
+
       //Confetti
       confettilauncher();
       //bind onclick to launch confetti
@@ -298,7 +335,7 @@ import Score from "../components/Score.astro";
 
       //read game.round and place it in the text with id round
       document.getElementById(
-        "s_round"
+        "s_round",
       ).innerHTML = `${Lgame.round}/${Lgame.max_rounds}`;
 
       //clear the table
@@ -310,7 +347,7 @@ import Score from "../components/Score.astro";
       players.forEach((name, index) => {
         if (index === Lgame.dealer)
           $("#names").append(
-            `<th> <span class="badge badge-secondary" id="n_${index}">${name}</span></th><th>   </th>`
+            `<th> <span class="badge badge-secondary" id="n_${index}">${name}</span></th><th>   </th>`,
           );
         else $("#names").append(`<th id="n_${index}">${name}</th><th>   </th>`);
       });
@@ -372,7 +409,7 @@ import Score from "../components/Score.astro";
                 <p id="top_players_b${i}"></p>
             </div>
         </div>
-    </div>`
+    </div>`,
         );
         if (score_sorted[i][1] == max) {
           document.getElementById("top_players_" + i).innerHTML = `👑 ${
@@ -704,6 +741,7 @@ import Score from "../components/Score.astro";
       if (view == 1) {
         $("#score").addClass("hidden");
         $("#past_games").removeClass("hidden");
+        $("#del_game").addClass("hidden");
         view = 0;
         end = Date.now() - 10;
         confetti.reset();
