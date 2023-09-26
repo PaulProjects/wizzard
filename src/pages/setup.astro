@@ -600,7 +600,7 @@ import { Icon } from "astro-icon";
   if (past_games == null || past_games.length == 0) {
     //add a disabled "no presets yet" button to the presets div
     $("#presets").append(
-      `<button class='btn btn-block btn-disabled m-2' id='preset0'>no preset games found</button>`,
+      `<button class='btn btn-block btn-disabled m-2' id='preset0'>no past games found</button>`,
     );
   } else {
     for (let i = 0; i < past_games.length; i++) {
@@ -656,6 +656,11 @@ import { Icon } from "astro-icon";
     //show modal_edit modal
     modal_edit.showModal();
   });
+  
+  //if the playlist is empty, hide the button
+  if ($("#playerlist").children().length == 0) {
+    $("#clearrecent").hide();
+  }
 
   $("#clearrecent").on("click", function () {
     localStorage.setItem("playerlist", JSON.stringify([]));

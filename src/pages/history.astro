@@ -45,11 +45,12 @@ import Score from "../components/Score.astro";
             id="import_data"
             class="btn btn-info btn-block mt-2"
             onclick="mo
-                "
-                      >
-            Import Data</button
+                    port Data</button
+                        utton id="
+                        d
+            el_game"
+            class="hidden btn btn-primary btn-block mt-5"
           >
-          <button id="del_game" class="hidden btn btn-primary btn-block mt-5">
             Delete this game
           </button>
           <button id="del_all" class="btn btn-primary btn-block mt-2">
@@ -163,7 +164,7 @@ import Score from "../components/Score.astro";
         location.reload();
       });
     });
-    
+
     $("#del_all").on("click", () => {
       //remove all onclick attributes
       $("#rremovedata").removeAttr("onclick");
@@ -356,19 +357,6 @@ import Score from "../components/Score.astro";
       const bets = JSON.parse(Lgame.bets);
       const score = JSON.parse(Lgame.score);
 
-      //fill the table
-      for (let i = 0; i < Lgame.round; i++) {
-        //create a new row
-        $("#rows").append(`<tr id="row${i}"></tr>`);
-        //add the round number to the row
-        $(`#row${i}`).append(`<td>${i + 1}</td>`);
-        //add the bets to the row
-        for (let j = 0; j < score[i].length; j++) {
-          $(`#row${i}`).append(`<td>${score[i][j]}</td>`);
-          $(`#row${i}`).append(`<td>${bets[i][j]}</td>`);
-        }
-      }
-
       //add the class bg-base-200 to the last element in the table with the rows
       $("#rows tr:last-child").addClass("bg-base-200");
 
@@ -428,108 +416,130 @@ import Score from "../components/Score.astro";
       }
 
       //Graph
-
-      let score_chart;
-      if (Lgame.round === 1) {
+      //check if the round is 2 or less if so hide the graph
+      console.log(Lgame.round);
+      if (Lgame.round <= 2) {
         $("#icon_chart").addClass("hidden");
-      } else {
-        $("#icon_chart").removeClass("hidden");
-        $("#chart").remove();
-        $("#chart_container").append('<canvas id="chart"></canvas>');
-        let ctx = document.getElementById("chart").getContext("2d");
-        //destroy the chart
-        score_chart?.destroy();
-        const scores = JSON.parse(Lgame.score);
-
-        //get players
-        //chartjs config that displays the rounds on the x axis and the scores on the y axis while having a own line for each playe
-        score_chart = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: scores.map((score, index) => index + 1),
-            datasets: players.map((pplayer, index) => ({
-              label: pplayer,
-              data: scores.map((score) => score[index]),
-              borderColor: `hsl(${(index * 360) / players.length}, 100%, 50%)`,
-              fill: false,
-              cubicInterpolationMode: "monotone",
-            })),
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: {
-                display: true,
-                title: {
-                  display: true,
-                  text: "Round",
-                },
-              },
-              y: {
-                display: true,
-                title: {
-                  display: true,
-                  text: "Points",
-                },
-              },
-            },
-            plugins: {
-              legend: {
-                labels: {
-                  usePointStyle: true,
-                },
-              },
-            },
-          },
-        });
-      }
-
-      //Bar Graph
-      let score_bar;
-      if (Lgame.round == 1 || Lgame.round == 2) {
         $("#icon_bar").addClass("hidden");
+        $("#icon_table").addClass("hidden");
       } else {
-        $("#icon_bar").removeClass("hidden");
-        $("#barchart").remove();
-        $("#barchartcontainer").append('<canvas id="barchart"></canvas>');
-        let ctx = document.getElementById("barchart").getContext("2d");
-        //destroy the chart
-        score_bar?.destroy();
-        const scores = JSON.parse(Lgame.score);
+        //fill the table
+        for (let i = 0; i < Lgame.round; i++) {
+          //create a new row
+          $("#rows").append(`<tr id="row${i}"></tr>`);
+          //add the round number to the row
+          $(`#row${i}`).append(`<td>${i + 1}</td>`);
+          //add the bets to the row
+          for (let j = 0; j < score[i].length; j++) {
+            $(`#row${i}`).append(`<td>${score[i][j]}</td>`);
+            $(`#row${i}`).append(`<td>${bets[i][j]}</td>`);
+          }
+        }
 
-        //display the current round in the bar graph
-        let round = Lgame.round - 1;
+        let score_chart;
+        if (Lgame.round === 1) {
+          $("#icon_chart").addClass("hidden");
+        } else {
+          $("#icon_chart").removeClass("hidden");
+          $("#chart").remove();
+          $("#chart_container").append('<canvas id="chart"></canvas>');
+          let ctx = document.getElementById("chart").getContext("2d");
+          //destroy the chart
+          score_chart?.destroy();
+          const scores = JSON.parse(Lgame.score);
 
-        //get players
-        //chartjs config that displays the rounds on the x axis and the scores on the y axis while having a own line for each playe
-        score_bar = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: players,
-            datasets: [
-              {
-                label: "Score",
-                data: scores[round - 1],
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                display: true,
-                title: {
+          //get players
+          //chartjs config that displays the rounds on the x axis and the scores on the y axis while having a own line for each playe
+          score_chart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: scores.map((score, index) => index + 1),
+              datasets: players.map((pplayer, index) => ({
+                label: pplayer,
+                data: scores.map((score) => score[index]),
+                borderColor: `hsl(${
+                  (index * 360) / players.length
+                }, 100%, 50%)`,
+                fill: false,
+                cubicInterpolationMode: "monotone",
+              })),
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: {
                   display: true,
-                  text: "Points",
+                  title: {
+                    display: true,
+                    text: "Round",
+                  },
                 },
-                beginAtZero: true,
+                y: {
+                  display: true,
+                  title: {
+                    display: true,
+                    text: "Points",
+                  },
+                },
+              },
+              plugins: {
+                legend: {
+                  labels: {
+                    usePointStyle: true,
+                  },
+                },
               },
             },
-          },
-        });
+          });
+        }
+
+        //Bar Graph
+        let score_bar;
+        if (Lgame.round == 1 || Lgame.round == 2) {
+          $("#icon_bar").addClass("hidden");
+        } else {
+          $("#icon_bar").removeClass("hidden");
+          $("#barchart").remove();
+          $("#barchartcontainer").append('<canvas id="barchart"></canvas>');
+          let ctx = document.getElementById("barchart").getContext("2d");
+          //destroy the chart
+          score_bar?.destroy();
+          const scores = JSON.parse(Lgame.score);
+
+          //display the current round in the bar graph
+          let round = Lgame.round - 1;
+
+          //get players
+          //chartjs config that displays the rounds on the x axis and the scores on the y axis while having a own line for each playe
+          score_bar = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: players,
+              datasets: [
+                {
+                  label: "Score",
+                  data: scores[round - 1],
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  display: true,
+                  title: {
+                    display: true,
+                    text: "Points",
+                  },
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
       }
     }
 

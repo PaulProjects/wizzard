@@ -11,9 +11,8 @@ import Score from "../components/Score.astro";
 
   <div class="hidden" id="input"><Input /></div>
   <div class="" id="score"><Score /></div>
-
   <nav
-    class="boxbuttons self-center w-4/5 lg:w-2/3 fixed bottom-2 lg:bottom-8 inset-x-0 mx-auto"
+    class="boxbuttons self-center w-4/5 lg:w-2/3 fixed bottom-8 inset-x-0 mx-auto"
   >
     <button class="btn btn-secondary btn-block" id="nav_button"
       ><p id="navtext">...</p></button
@@ -313,6 +312,11 @@ import Score from "../components/Score.astro";
   var end;
 
   function confettilauncher() {
+    //if confetti is already running then set end to now
+    if (Date.now() < end) {
+      end = Date.now();
+      return;
+    }
     duration = 20 * 1000;
     end = Date.now() + duration;
     confetticannon();
@@ -371,8 +375,7 @@ import Score from "../components/Score.astro";
       $("#navtext").text("Enter Tricks");
     } else if (game.step == "3") {
       $("#navtext").text("Save and Quit");
-      //hide End Game Button
-      $("#endgame").addClass("hidden");
+      
       celebration();
       confettilauncher();
       //bind onclick to launch confetti
@@ -875,6 +878,9 @@ import Score from "../components/Score.astro";
   //open modal_settings on click on title
   //#region
   $("#title").on("click", () => {
+    if(step == "3") { //no need for settings when the game finished
+      return;
+    }
     document.getElementById("modal_settings").open = true;
   });
 
@@ -899,11 +905,12 @@ import Score from "../components/Score.astro";
     if ($("#rule_1").is(":checked")) {
       game.rule_1 = "true";
       localStorage.setItem("game", JSON.stringify(game));
-      //set the rule_1 in localstorage to true
+      //update the confirm button
     } else {
       game.rule_1 = "false";
       localStorage.setItem("game", JSON.stringify(game));
     }
+    updatetotal();
   });
   //#endregion
   ////////////////////////////////////////////
