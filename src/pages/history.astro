@@ -45,9 +45,9 @@ import Score from "../components/Score.astro";
             id="import_data"
             class="btn btn-info btn-block mt-2"
             onclick="mo
-                    port Data</button
-                        utton id="
-                        d
+                                port Data</button
+                                    utton id=" 
+            d
             el_game"
             class="hidden btn btn-primary btn-block mt-5"
           >
@@ -346,11 +346,7 @@ import Score from "../components/Score.astro";
       $("#names").append("<th>Round</th>");
       //get the names from the game json and place them in the table use jQuery
       players.forEach((name, index) => {
-        if (index === Lgame.dealer)
-          $("#names").append(
-            `<th> <span class="badge badge-secondary" id="n_${index}">${name}</span></th><th>   </th>`,
-          );
-        else $("#names").append(`<th id="n_${index}">${name}</th><th>   </th>`);
+        $("#names").append(`<th id="n_${index}">${name}</th><th>   </th>`);
       });
 
       //get bets and tricks arrays using json parse from localstorage
@@ -408,23 +404,20 @@ import Score from "../components/Score.astro";
             score_sorted[i][0]
           }`;
         }
-        if (i == Lgame.dealer) {
-          document
-            .getElementById("top_players_" + i)
-            .classList.add("text-blue-500");
-        }
       }
 
       //Graph
       //check if the round is 2 or less if so hide the graph
-      console.log(Lgame.round);
       if (Lgame.round <= 2) {
         $("#icon_chart").addClass("hidden");
         $("#icon_bar").addClass("hidden");
         $("#icon_table").addClass("hidden");
       } else {
+        $("#icon_chart").removeClass("hidden");
+        $("#icon_bar").removeClass("hidden");
+        $("#icon_table").removeClass("hidden");
         //fill the table
-        for (let i = 0; i < Lgame.round; i++) {
+        for (let i = 0; i < score.length; i++) {
           //create a new row
           $("#rows").append(`<tr id="row${i}"></tr>`);
           //add the round number to the row
@@ -548,6 +541,11 @@ import Score from "../components/Score.astro";
     var duration;
     var end;
     function confettilauncher() {
+      //if confetti is already running then set end to now
+      if (Date.now() < end) {
+        end = Date.now();
+        return;
+      }
       duration = 20 * 1000;
       end = Date.now() + duration;
       confetticannon();

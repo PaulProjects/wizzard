@@ -5,7 +5,7 @@ import Score from "../components/Score.astro";
 ---
 
 <Layout title="Wizzard!">
-  <div class="prose prose-sm md:prose-base w-full flex-grow">
+  <div class="prose prose-sm md:prose-base w-full flex-grow pt-2">
     <h1 class="text-center text-6xl" id="title">Wizzard</h1>
   </div>
 
@@ -170,8 +170,6 @@ import Score from "../components/Score.astro";
   integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
   crossorigin="anonymous"></script>
 <script>
-  import { fade } from "astro:transitions";
-
   //if localstorage game_active is not true then redirect home
   if (localStorage.getItem("game") == null) {
     window.location.href = "/";
@@ -199,6 +197,7 @@ import Score from "../components/Score.astro";
   }
   //add a listener to the nav_button
   $("#nav_button").on("click", () => {
+    freezebutton();
     if (editmode == true) {
       //reload page
       location.reload();
@@ -209,7 +208,6 @@ import Score from "../components/Score.astro";
       game.display = "2";
       localStorage.setItem("game", JSON.stringify(game));
       update();
-      freezebutton();
     } else {
       Input_confirm();
     }
@@ -365,7 +363,7 @@ import Score from "../components/Score.astro";
     $("#nav_button").addClass("btn-disabled");
     setTimeout(function () {
       $("#nav_button").removeClass("btn-disabled");
-    }, 1000);
+    }, 500);
   }
   //#region
   function updatescore() {
@@ -464,11 +462,6 @@ import Score from "../components/Score.astro";
         document.getElementById("top_players_" + i).innerHTML = `${i + 1}. ${
           players[i]
         }`;
-        if (i == game.dealer) {
-          document
-            .getElementById("top_players_" + i)
-            .classList.add("text-info");
-        }
         if (game.step == "2") {
           document.getElementById(
             "top_players_b" + i
@@ -479,7 +472,6 @@ import Score from "../components/Score.astro";
       let highest = 0;
       let highest_index = 0;
       for (let i = 0; i < game.players.length; i++) {
-        let total = 0;
         if (highest < score[score.length - 1][i]) {
           highest = score[score.length - 1][i];
           highest_index = i;
@@ -529,11 +521,6 @@ import Score from "../components/Score.astro";
           document.getElementById("top_players_" + i).innerHTML = `${i + 1}. ${
             score_sorted[i][0]
           }`;
-        }
-        if (i == game.dealer) {
-          document
-            .getElementById("top_players_" + i)
-            .classList.add("text-blue-500");
         }
       }
     }
@@ -716,7 +703,6 @@ import Score from "../components/Score.astro";
       document.getElementById(
         "round"
       ).innerHTML = `${game.round}/${game.max_rounds} - Place Bets`;
-      freezebutton();
     } else {
       document.getElementById(
         "round"
@@ -878,7 +864,7 @@ import Score from "../components/Score.astro";
   //open modal_settings on click on title
   //#region
   $("#title").on("click", () => {
-    if(step == "3") { //no need for settings when the game finished
+    if(game.step == "3") { //no need for settings when the game finished
       return;
     }
     document.getElementById("modal_settings").open = true;
@@ -942,7 +928,6 @@ import Score from "../components/Score.astro";
     let highest = 0;
     let highest_index = 0;
     for (let i = 0; i < players.length; i++) {
-      let total = 0;
       if (highest < score[score.length - 1][i]) {
         highest = score[score.length - 1][i];
         highest_index = i;
